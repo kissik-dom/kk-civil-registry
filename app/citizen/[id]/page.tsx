@@ -109,11 +109,12 @@ export default function CitizenDetailPage() {
       {/* Issue Documents */}
       <div className="mb-10">
         <h3 className="text-xs text-royal-gold/60 uppercase tracking-widest mb-4">Issue New Document</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {([
             { type: 'birth_certificate' as DocumentType, icon: '📜', desc: 'Sovereign birth registration' },
             { type: 'id_card' as DocumentType, icon: '🪪', desc: 'Official KK identification' },
             { type: 'passport' as DocumentType, icon: '📕', desc: 'ICAO travel document' },
+            { type: 'laissez_passer' as DocumentType, icon: '✈️', desc: 'Temporary travel document' },
             { type: 'dual_citizenship' as DocumentType, icon: '🌍', desc: 'KK / United States' },
           ]).map((item) => (
             <button
@@ -143,7 +144,7 @@ export default function CitizenDetailPage() {
                 className="doc-card rounded-lg p-3 bg-white/[0.02] flex items-center justify-between hover:bg-royal-gold/5 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">{doc.type === 'birth_certificate' ? '📜' : doc.type === 'id_card' ? '🪪' : doc.type === 'passport' ? '📕' : '🌍'}</span>
+                  <span className="text-lg">{doc.type === 'birth_certificate' ? '📜' : doc.type === 'id_card' ? '🪪' : doc.type === 'passport' ? '📕' : doc.type === 'laissez_passer' ? '✈️' : '🌍'}</span>
                   <div>
                     <div className="text-sm text-royal-cream/80">{DOCUMENT_LABELS[doc.type]}</div>
                     <div className="text-[10px] text-royal-cream/30 font-mono">{doc.documentNumber}</div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { Citizen, Document, CITIZEN_TYPE_CODES } from './types';
+import type { DocumentType } from './types';
 
 const CITIZENS_KEY = 'kk_civil_registry_citizens';
 const DOCUMENTS_KEY = 'kk_civil_registry_documents';
@@ -42,14 +43,15 @@ export function generateKKNumber(citizenType: Citizen['citizenType']): string {
 }
 
 // Generate document number: KK-{TYPE}-{YEAR}-{SEQ:6}
-export function generateDocNumber(type: Document['type']): string {
+export function generateDocNumber(type: DocumentType): string {
   const seq = incrementCounter();
   const year = new Date().getFullYear();
-  const typeMap: Record<Document['type'], string> = {
+  const typeMap: Record<DocumentType, string> = {
     birth_certificate: 'BC',
     id_card: 'ID',
     passport: 'PP',
     dual_citizenship: 'DC',
+    laissez_passer: 'LP',
   };
   return `KK-${typeMap[type]}-${year}-${String(seq).padStart(6, '0')}`;
 }
@@ -105,7 +107,7 @@ export function getDocumentsByCitizen(citizenId: string): Document[] {
   return getDocuments().filter(d => d.citizenId === citizenId);
 }
 
-export function issueDocument(citizenId: string, type: Document['type']): Document {
+export function issueDocument(citizenId: string, type: DocumentType): Document {
   const docs = getDocuments();
   const now = new Date();
   const newDoc: Document = {
@@ -116,6 +118,7 @@ export function issueDocument(citizenId: string, type: Document['type']): Docume
     issuedAt: now.toISOString(),
     expiresAt: type === 'passport' ? new Date(now.getFullYear() + 10, now.getMonth(), now.getDate()).toISOString() :
                type === 'id_card' ? new Date(now.getFullYear() + 10, now.getMonth(), now.getDate()).toISOString() :
+               type === 'laissez_passer' ? new Date(now.getFullYear() + 1, now.getMonth(), now.getDate()).toISOString() :
                undefined,
   };
   docs.push(newDoc);
@@ -135,6 +138,9 @@ export function getStats() {
       honorary: citizens.filter(c => c.citizenType === 'honorary').length,
       dual: citizens.filter(c => c.citizenType === 'dual').length,
       humanitarian: citizens.filter(c => c.citizenType === 'humanitarian').length,
+      regent: citizens.filter(c => c.citizenType === 'regent').length,
+      royal_direct: citizens.filter(c => c.citizenType === 'royal_direct').length,
+      royal_extended: citizens.filter(c => c.citizenType === 'royal_extended').length,
     },
   };
 }

@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveCitizen } from '@/lib/storage';
 import PhotoUpload from '@/components/PhotoUpload';
-import type { Citizen } from '@/lib/types';
+import { CITIZEN_TYPE_LABELS, CITIZEN_TYPE_DEFINITIONS } from '@/lib/types';
+import type { Citizen, CitizenType } from '@/lib/types';
 
 const INITIAL: Omit<Citizen, 'id' | 'kkNumber' | 'registeredAt'> = {
   fullName: '',
@@ -21,6 +22,22 @@ const INITIAL: Omit<Citizen, 'id' | 'kkNumber' | 'registeredAt'> = {
   photo: undefined,
 };
 
+const TYPE_ORDER: CitizenType[] = [
+  'regent', 'royal_direct', 'royal_extended',
+  'born', 'naturalized', 'honorary', 'dual', 'humanitarian',
+];
+
+const TYPE_ICONS: Record<CitizenType, string> = {
+  regent: '👑',
+  royal_direct: '⚜️',
+  royal_extended: '🛡️',
+  born: '👶',
+  naturalized: '📜',
+  honorary: '🏅',
+  dual: '🌍',
+  humanitarian: '🕊️',
+};
+
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState(INITIAL);
@@ -33,7 +50,6 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
-    // Validation
     if (!form.fullName || !form.dateOfBirth || !form.placeOfBirth || !form.gender || !form.citizenType) {
       setError('Please fill in all required fields (marked with *)');
       return;
@@ -48,6 +64,8 @@ export default function RegisterPage() {
       setSaving(false);
     }
   };
+
+  const isRoyal = ['regent', 'royal_direct', 'royal_extended'].includes(form.citizenType);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
@@ -73,6 +91,50 @@ export default function RegisterPage() {
           />
           <p className="text-[10px] text-royal-cream/30 mt-2">Passport-quality photo. Will appear on all official documents.</p>
         </div>
+
+        {/* Citizen Type Selection — with definitions */}
+        <fieldset className={`border rounded-xl p-6 ${isRoyal ? 'border-[#7B1A2C]/40 bg-[#7B1A2C]/5' : 'border-royal-gold/10'}`}>
+          <legend className="text-xs text-royal-gold/60 uppercase tracking-widest px-2">Citizen Classification</legend>
+
+          <label className="block mb-2">Citizen Type *</label>
+          <div className="grid gap-2">
+            {TYPE_ORDER.map((type) => {
+              const selected = form.citizenType === type;
+              const isRoyalType = ['regent', 'royal_direct', 'royal_extended'].includes(type);
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => set('citizenType', type)}
+                  className={`text-left p-3 rounded-lg border transition-all ${
+                    selected
+                      ? isRoyalType
+                        ? 'border-[#7B1A2C] bg-[#7B1A2C]/15 ring-1 ring-[#7B1A2C]/30'
+                        : 'border-royal-gold/50 bg-royal-gold/10 ring-1 ring-royal-gold/20'
+                      : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.04]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{TYPE_ICONS[type]}</span>
+                    <span className={`text-sm font-medium ${
+                      selected
+                        ? isRoyalType ? 'text-[#e8a0b0]' : 'text-royal-gold'
+                        : 'text-royal-cream/70'
+                    }`}>
+                      {CITIZEN_TYPE_LABELS[type]}
+                    </span>
+                    {selected && <span className="ml-auto text-xs">✓</span>}
+                  </div>
+                  <p className={`text-[11px] mt-1 ml-7 leading-relaxed ${
+                    selected ? 'text-royal-cream/50' : 'text-royal-cream/25'
+                  }`}>
+                    {CITIZEN_TYPE_DEFINITIONS[type]}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
 
         {/* Personal Information */}
         <fieldset className="border border-royal-gold/10 rounded-xl p-6">
@@ -113,16 +175,6 @@ export default function RegisterPage() {
               <label>Nationality</label>
               <input type="text" value={form.nationality} onChange={e => set('nationality', e.target.value)} />
             </div>
-            <div>
-              <label>Citizen Type *</label>
-              <select value={form.citizenType} onChange={e => set('citizenType', e.target.value)}>
-                <option value="born">Born Citizen</option>
-                <option value="naturalized">Naturalized Citizen</option>
-                <option value="honorary">Honorary Citizen</option>
-                <option value="dual">Dual Citizen</option>
-                <option value="humanitarian">Humanitarian Citizen</option>
-              </select>
-            </div>
             <div className="md:col-span-2">
               <label>Citizenship Active Since</label>
               <input
@@ -159,7 +211,11 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={saving}
-            className="px-10 py-3 bg-royal-gold text-royal-dark font-semibold rounded-lg hover:bg-royal-gold/90 transition-all disabled:opacity-50 flex items-center gap-2"
+            className={`px-10 py-3 font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center gap-2 ${
+              isRoyal
+                ? 'bg-[#7B1A2C] text-white hover:bg-[#8B2A3C]'
+                : 'bg-royal-gold text-royal-dark hover:bg-royal-gold/90'
+            }`}
           >
             {saving ? (
               <>

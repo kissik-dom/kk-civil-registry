@@ -8,6 +8,46 @@ import { CITIZEN_TYPE_LABELS } from '@/lib/types';
 import type { Citizen, Document } from '@/lib/types';
 import Link from 'next/link';
 
+// Color themes by citizen type
+function getTheme(citizenType: string) {
+  if (citizenType === 'regent') return {
+    primary: '#7B1A2C',      // Deep maroon/burgundy
+    primaryLight: '#9B3A4C',
+    accent: '#c9a84c',        // Gold
+    gradient: 'from-[#3a0d15] to-[#1a0a0e]',
+    passportCover: 'from-[#4a1020] to-[#2a0810]',
+    label: 'text-[#c9a84c]/60',
+    border: 'border-[#7B1A2C]/40',
+  };
+  if (citizenType === 'royal_direct') return {
+    primary: '#1a2a5e',       // Navy
+    primaryLight: '#2a3a7e',
+    accent: '#c9a84c',
+    gradient: 'from-[#0d1530] to-[#0a1020]',
+    passportCover: 'from-[#101a40] to-[#0a1030]',
+    label: 'text-[#c9a84c]/60',
+    border: 'border-[#1a2a5e]/40',
+  };
+  if (citizenType === 'royal_extended') return {
+    primary: '#4a3520',       // Brown
+    primaryLight: '#6a5540',
+    accent: '#c9a84c',
+    gradient: 'from-[#2a1a10] to-[#1a1008]',
+    passportCover: 'from-[#302010] to-[#201008]',
+    label: 'text-[#c9a84c]/60',
+    border: 'border-[#4a3520]/40',
+  };
+  return {
+    primary: '#12121a',
+    primaryLight: '#1a1a2e',
+    accent: '#c9a84c',
+    gradient: 'from-[#12121a] to-[#1a1a2e]',
+    passportCover: 'from-[#1a0f0a] to-[#2a1a10]',
+    label: 'text-[#c9a84c]/60',
+    border: 'border-[#c9a84c]/30',
+  };
+}
+
 export default function DocumentViewPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -62,6 +102,7 @@ export default function DocumentViewPage() {
         {doc.type === 'id_card' && <IDCard citizen={citizen} doc={doc} />}
         {doc.type === 'passport' && <Passport citizen={citizen} doc={doc} />}
         {doc.type === 'dual_citizenship' && <DualCitizenshipCert citizen={citizen} doc={doc} />}
+        {doc.type === 'laissez_passer' && <LaissezPasser citizen={citizen} doc={doc} />}
       </div>
     </div>
   );
@@ -73,35 +114,21 @@ export default function DocumentViewPage() {
 function BirthCertificate({ citizen, doc }: { citizen: Citizen; doc: Document }) {
   return (
     <div className="bg-[#faf8f0] text-[#1a1a1a] rounded-xl overflow-hidden shadow-2xl" style={{ aspectRatio: '8.5/11' }}>
-      {/* Gold top border */}
       <div className="h-3 bg-gradient-to-r from-[#a08030] via-[#c9a84c] to-[#a08030]" />
 
       <div className="px-12 py-8 flex flex-col items-center text-center">
-        {/* Seal */}
         <img src="/images/royal-seal.png" alt="Royal Seal" className="w-20 h-20 mb-4 opacity-90" />
-
-        {/* Kingdom name */}
         <h1 className="text-lg font-display tracking-[0.3em] text-[#8b7340] uppercase">The Royal Kissi Kingdom</h1>
         <p className="text-xs text-[#8b7340]/60 italic mt-1">Omnividens, Omnipotens, Omniaeternus</p>
-
-        {/* Divider */}
         <div className="w-48 h-px bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent my-5" />
-
-        {/* Title */}
         <h2 className="text-2xl font-serif font-bold text-[#2a2a2a] tracking-wider">CERTIFICATE OF BIRTH</h2>
         <p className="text-[10px] text-[#666] mt-1 tracking-wider uppercase">Civil Registry of the Kissi Kingdom</p>
-
-        {/* Certificate number */}
         <div className="mt-4 px-3 py-1 border border-[#c9a84c]/30 rounded text-[10px] font-mono text-[#8b7340]">
           Certificate No. {doc.documentNumber}
         </div>
-
-        {/* Main body */}
         <div className="mt-8 text-sm text-[#333] leading-relaxed max-w-md">
           <p>This is to certify that the following person was born and is hereby registered in the Civil Registry of the Kissi Kingdom.</p>
         </div>
-
-        {/* Data table */}
         <div className="mt-6 w-full max-w-md text-left">
           <table className="w-full text-sm">
             <tbody>
@@ -122,13 +149,9 @@ function BirthCertificate({ citizen, doc }: { citizen: Citizen; doc: Document })
             </tbody>
           </table>
         </div>
-
-        {/* Attestation */}
         <div className="mt-8 text-xs text-[#666] leading-relaxed max-w-md">
           <p>Registered by authority of the Royal House of Kamanda. This certificate is issued under the sovereign authority of the Kissi Kingdom and constitutes an official record of birth within the Civil Registry.</p>
         </div>
-
-        {/* Date and signatures */}
         <div className="mt-8 w-full max-w-md flex justify-between items-end">
           <div className="text-left">
             <p className="text-[10px] text-[#999]">Date of Issuance</p>
@@ -141,23 +164,22 @@ function BirthCertificate({ citizen, doc }: { citizen: Citizen; doc: Document })
           </div>
         </div>
       </div>
-
-      {/* Gold bottom border */}
       <div className="h-3 bg-gradient-to-r from-[#a08030] via-[#c9a84c] to-[#a08030] mt-auto" />
     </div>
   );
 }
 
 /* ========================================================================
-   NATIONAL ID CARD
+   NATIONAL ID CARD — color-coded by citizen type
    ======================================================================== */
 function IDCard({ citizen, doc }: { citizen: Citizen; doc: Document }) {
+  const theme = getTheme(citizen.citizenType);
+
   return (
     <div className="max-w-md mx-auto">
       {/* Front */}
-      <div className="bg-gradient-to-br from-[#12121a] to-[#1a1a2e] rounded-2xl overflow-hidden shadow-2xl border border-[#c9a84c]/30 mb-6" style={{ aspectRatio: '1.586/1' }}>
+      <div className={`bg-gradient-to-br ${theme.gradient} rounded-2xl overflow-hidden shadow-2xl ${theme.border} border mb-6`} style={{ aspectRatio: '1.586/1' }}>
         <div className="h-full p-5 flex flex-col">
-          {/* Header */}
           <div className="flex items-center gap-2 mb-3">
             <img src="/images/royal-seal.png" alt="Seal" className="w-8 h-8 opacity-80" />
             <div>
@@ -165,11 +187,8 @@ function IDCard({ citizen, doc }: { citizen: Citizen; doc: Document }) {
               <p className="text-[7px] text-[#c9a84c]/40 tracking-wider">NATIONAL IDENTIFICATION CARD</p>
             </div>
           </div>
-
-          {/* Main content */}
           <div className="flex gap-4 flex-1">
-            {/* Photo */}
-            <div className="w-24 h-28 rounded-lg overflow-hidden border border-[#c9a84c]/30 flex-shrink-0 bg-[#0a0a0f]">
+            <div className={`w-24 h-28 rounded-lg overflow-hidden ${theme.border} border flex-shrink-0`} style={{ background: theme.primary }}>
               {citizen.photo ? (
                 <img src={citizen.photo} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -178,8 +197,6 @@ function IDCard({ citizen, doc }: { citizen: Citizen; doc: Document }) {
                 </div>
               )}
             </div>
-
-            {/* Data */}
             <div className="flex-1 text-[10px] space-y-1.5">
               <div>
                 <span className="text-[#c9a84c]/50 block text-[8px]">FULL NAME</span>
@@ -209,8 +226,6 @@ function IDCard({ citizen, doc }: { citizen: Citizen; doc: Document }) {
               </div>
             </div>
           </div>
-
-          {/* Footer */}
           <div className="flex justify-between items-end mt-2 pt-2 border-t border-[#c9a84c]/10">
             <div className="text-[8px] text-white/30">
               <span>ISSUED: {formatDateShort(doc.issuedAt.slice(0, 10))}</span>
@@ -222,7 +237,7 @@ function IDCard({ citizen, doc }: { citizen: Citizen; doc: Document }) {
       </div>
 
       {/* Back */}
-      <div className="bg-gradient-to-br from-[#12121a] to-[#1a1a2e] rounded-2xl overflow-hidden shadow-2xl border border-[#c9a84c]/30" style={{ aspectRatio: '1.586/1' }}>
+      <div className={`bg-gradient-to-br ${theme.gradient} rounded-2xl overflow-hidden shadow-2xl ${theme.border} border`} style={{ aspectRatio: '1.586/1' }}>
         <div className="h-full p-5 flex flex-col">
           <div className="flex-1 flex flex-col justify-center">
             <p className="text-[9px] text-white/30 mb-3 text-center uppercase tracking-widest">Additional Information</p>
@@ -245,7 +260,6 @@ function IDCard({ citizen, doc }: { citizen: Citizen; doc: Document }) {
               </div>
             </div>
           </div>
-
           <div className="mt-auto pt-3 border-t border-[#c9a84c]/10">
             <p className="text-[7px] text-white/20 text-center leading-relaxed">
               The bearer of this credential is a duly recognized citizen of the Kissi Kingdom. All courtesies and immunities afforded under international law are respectfully requested.
@@ -261,21 +275,28 @@ function IDCard({ citizen, doc }: { citizen: Citizen; doc: Document }) {
 }
 
 /* ========================================================================
-   SOVEREIGN PASSPORT (ICAO 9303 Format)
+   SOVEREIGN PASSPORT — color-coded by citizen type
    ======================================================================== */
 function Passport({ citizen, doc }: { citizen: Citizen; doc: Document }) {
+  const theme = getTheme(citizen.citizenType);
   const expiryDate = doc.expiresAt?.slice(0, 10) || '';
   const mrz = generateMRZ(citizen, doc.documentNumber, expiryDate);
+  const isRoyal = ['regent', 'royal_direct', 'royal_extended'].includes(citizen.citizenType);
 
   return (
     <div className="max-w-lg mx-auto">
       {/* Passport cover */}
-      <div className="bg-gradient-to-b from-[#1a0f0a] to-[#2a1a10] rounded-xl overflow-hidden shadow-2xl border border-[#c9a84c]/40 mb-6" style={{ aspectRatio: '3/4' }}>
+      <div className={`bg-gradient-to-b ${theme.passportCover} rounded-xl overflow-hidden shadow-2xl border border-[#c9a84c]/40 mb-6`} style={{ aspectRatio: '3/4' }}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-          <p className="text-[10px] text-[#c9a84c]/60 tracking-[0.4em] uppercase mb-6">Sovereign Travel Document</p>
+          <p className="text-[10px] text-[#c9a84c]/60 tracking-[0.4em] uppercase mb-6">
+            {isRoyal ? 'Sovereign Diplomatic Passport' : 'Sovereign Travel Document'}
+          </p>
           <img src="/images/royal-seal.png" alt="Royal Seal" className="w-28 h-28 mb-6 opacity-90" />
           <h1 className="text-lg font-display tracking-[0.3em] text-[#c9a84c] uppercase">Kissi Kingdom</h1>
           <p className="text-[9px] text-[#c9a84c]/40 mt-1 italic">Omnividens, Omnipotens, Omniaeternus</p>
+          {isRoyal && (
+            <p className="text-[9px] text-[#c9a84c]/50 mt-3 tracking-wider uppercase">{CITIZEN_TYPE_LABELS[citizen.citizenType]}</p>
+          )}
           <div className="mt-8 w-24 h-px bg-[#c9a84c]/30" />
           <p className="text-[10px] text-[#c9a84c]/50 tracking-[0.3em] uppercase mt-4">Passport</p>
         </div>
@@ -284,7 +305,6 @@ function Passport({ citizen, doc }: { citizen: Citizen; doc: Document }) {
       {/* Bio data page */}
       <div className="bg-[#faf8f0] rounded-xl overflow-hidden shadow-2xl text-[#1a1a1a]" style={{ aspectRatio: '3/4' }}>
         <div className="h-full flex flex-col p-6">
-          {/* Header */}
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-[#c9a84c]/20">
             <img src="/images/royal-seal.png" alt="Seal" className="w-10 h-10 opacity-80" />
             <div>
@@ -292,9 +312,7 @@ function Passport({ citizen, doc }: { citizen: Citizen; doc: Document }) {
               <p className="text-[8px] text-[#8b7340]/50 tracking-wider">SOVEREIGN PASSPORT — ICAO COMPLIANT</p>
             </div>
           </div>
-
           <div className="flex gap-4">
-            {/* Photo */}
             <div className="w-28 h-36 rounded border-2 border-[#c9a84c]/30 overflow-hidden flex-shrink-0 bg-gray-100">
               {citizen.photo ? (
                 <img src={citizen.photo} alt="" className="w-full h-full object-cover" />
@@ -304,12 +322,10 @@ function Passport({ citizen, doc }: { citizen: Citizen; doc: Document }) {
                 </div>
               )}
             </div>
-
-            {/* Bio data */}
             <div className="flex-1 space-y-2 text-[10px]">
               <div>
                 <span className="text-[#8b7340]/60 block text-[8px] uppercase">Type / Type</span>
-                <span className="font-medium">P</span>
+                <span className="font-medium">{isRoyal ? 'PD' : 'P'}</span>
               </div>
               <div>
                 <span className="text-[#8b7340]/60 block text-[8px] uppercase">Country Code / Code du pays</span>
@@ -355,8 +371,6 @@ function Passport({ citizen, doc }: { citizen: Citizen; doc: Document }) {
               </div>
             </div>
           </div>
-
-          {/* Signature line */}
           <div className="mt-4 pt-2 border-t border-[#c9a84c]/20">
             <div className="flex justify-between items-end">
               <div>
@@ -369,8 +383,6 @@ function Passport({ citizen, doc }: { citizen: Citizen; doc: Document }) {
               </div>
             </div>
           </div>
-
-          {/* MRZ Zone */}
           <div className="mt-auto pt-3 border-t-2 border-[#333]">
             <div className="bg-white py-2 px-1 font-mono text-[11px] leading-relaxed tracking-wider text-[#333]">
               <div className="mrz-font">{mrz[0]}</div>
@@ -390,27 +402,19 @@ function DualCitizenshipCert({ citizen, doc }: { citizen: Citizen; doc: Document
   return (
     <div className="bg-[#faf8f0] text-[#1a1a1a] rounded-xl overflow-hidden shadow-2xl" style={{ aspectRatio: '8.5/11' }}>
       <div className="h-3 bg-gradient-to-r from-[#a08030] via-[#c9a84c] to-[#a08030]" />
-
       <div className="px-12 py-8 flex flex-col items-center text-center">
         <img src="/images/royal-seal.png" alt="Royal Seal" className="w-20 h-20 mb-4 opacity-90" />
-
         <h1 className="text-lg font-display tracking-[0.3em] text-[#8b7340] uppercase">The Royal Kissi Kingdom</h1>
         <p className="text-xs text-[#8b7340]/60 italic mt-1">Omnividens, Omnipotens, Omniaeternus</p>
-
         <div className="w-48 h-px bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent my-5" />
-
         <h2 className="text-2xl font-serif font-bold text-[#2a2a2a] tracking-wider">CERTIFICATE OF DUAL CITIZENSHIP</h2>
         <p className="text-[10px] text-[#666] mt-1 tracking-wider uppercase">Kissi Kingdom / United States of America</p>
-
         <div className="mt-4 px-3 py-1 border border-[#c9a84c]/30 rounded text-[10px] font-mono text-[#8b7340]">
           Certificate No. {doc.documentNumber}
         </div>
-
         <div className="mt-8 text-sm text-[#333] leading-relaxed max-w-md">
           <p>This certifies that the person named herein is a recognized citizen of both the Kissi Kingdom and the United States of America, entitled to all rights and protections under sovereign authority.</p>
         </div>
-
-        {/* Photo and data */}
         <div className="mt-6 flex gap-6 w-full max-w-md">
           <div className="w-24 h-28 rounded border-2 border-[#c9a84c]/30 overflow-hidden flex-shrink-0">
             {citizen.photo ? (
@@ -421,7 +425,6 @@ function DualCitizenshipCert({ citizen, doc }: { citizen: Citizen; doc: Document
               </div>
             )}
           </div>
-
           <table className="flex-1 text-sm text-left">
             <tbody>
               {[
@@ -440,12 +443,9 @@ function DualCitizenshipCert({ citizen, doc }: { citizen: Citizen; doc: Document
             </tbody>
           </table>
         </div>
-
-        {/* Attestation */}
         <div className="mt-8 text-xs text-[#666] leading-relaxed max-w-md">
           <p>All citizenship dates from Kingdom founding. No expiration. This certificate is issued under the sovereign authority of the Kissi Kingdom and attests to the dual citizenship status of the named individual. The holder is entitled to all rights, privileges, and protections afforded to citizens of both jurisdictions.</p>
         </div>
-
         <div className="mt-8 w-full max-w-md flex justify-between items-end">
           <div className="text-left">
             <p className="text-[10px] text-[#999]">Date of Issuance</p>
@@ -458,8 +458,150 @@ function DualCitizenshipCert({ citizen, doc }: { citizen: Citizen; doc: Document
           </div>
         </div>
       </div>
-
       <div className="h-3 bg-gradient-to-r from-[#a08030] via-[#c9a84c] to-[#a08030] mt-auto" />
+    </div>
+  );
+}
+
+/* ========================================================================
+   LAISSEZ-PASSER — Sovereign Emergency Travel Document
+   ======================================================================== */
+function LaissezPasser({ citizen, doc }: { citizen: Citizen; doc: Document }) {
+  const theme = getTheme(citizen.citizenType);
+  const isRoyal = ['regent', 'royal_direct', 'royal_extended'].includes(citizen.citizenType);
+  const expiryDate = doc.expiresAt?.slice(0, 10) || '';
+  const mrz = generateMRZ(citizen, doc.documentNumber, expiryDate);
+
+  return (
+    <div className="max-w-lg mx-auto">
+      {/* Cover */}
+      <div className={`bg-gradient-to-b ${theme.passportCover} rounded-xl overflow-hidden shadow-2xl border border-[#c9a84c]/40 mb-6`} style={{ aspectRatio: '3/4' }}>
+        <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+          <p className="text-[10px] text-[#c9a84c]/60 tracking-[0.4em] uppercase mb-3">Sovereign Travel Document</p>
+
+          {/* Gold double border frame */}
+          <div className="border-2 border-[#c9a84c]/40 rounded-lg p-6 mb-4">
+            <div className="border border-[#c9a84c]/20 rounded-lg p-6">
+              <img src="/images/royal-seal.png" alt="Royal Seal" className="w-24 h-24 mx-auto mb-4 opacity-90" />
+              <h1 className="text-xl font-display tracking-[0.2em] text-[#c9a84c] uppercase">Laissez-Passer</h1>
+            </div>
+          </div>
+
+          <h2 className="text-sm font-display tracking-[0.3em] text-[#c9a84c]/80 uppercase">Kissi Kingdom</h2>
+          <p className="text-[9px] text-[#c9a84c]/40 mt-1 italic">Omnividens, Omnipotens, Omniaeternus</p>
+
+          {isRoyal && (
+            <p className="text-[9px] text-[#c9a84c]/50 mt-3 tracking-wider uppercase">{CITIZEN_TYPE_LABELS[citizen.citizenType]}</p>
+          )}
+
+          <div className="mt-6 text-[8px] text-[#c9a84c]/30 max-w-[250px] leading-relaxed">
+            The bearer of this document is under the protection of the Kissi Kingdom. All authorities are requested to permit the bearer to pass freely and to afford such assistance and protection as may be necessary.
+          </div>
+        </div>
+      </div>
+
+      {/* Inner pages */}
+      <div className="bg-[#faf8f0] rounded-xl overflow-hidden shadow-2xl text-[#1a1a1a]" style={{ aspectRatio: '3/4' }}>
+        <div className="h-full flex flex-col p-6">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-[#c9a84c]/20">
+            <img src="/images/royal-seal.png" alt="Seal" className="w-10 h-10 opacity-80" />
+            <div>
+              <p className="text-[10px] text-[#8b7340] tracking-[0.2em] uppercase font-medium">Kissi Kingdom</p>
+              <p className="text-[8px] text-[#8b7340]/50 tracking-wider">LAISSEZ-PASSER — SOVEREIGN TRAVEL DOCUMENT</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            {/* Photo */}
+            <div className="w-28 h-36 rounded border-2 border-[#c9a84c]/30 overflow-hidden flex-shrink-0 bg-gray-100">
+              {citizen.photo ? (
+                <img src={citizen.photo} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-50">
+                  <span className="text-4xl text-[#c9a84c]/30">{citizen.fullName[0]}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Bio data */}
+            <div className="flex-1 space-y-2 text-[10px]">
+              <div>
+                <span className="text-[#8b7340]/60 block text-[8px] uppercase">Document Type</span>
+                <span className="font-medium">LAISSEZ-PASSER</span>
+              </div>
+              <div>
+                <span className="text-[#8b7340]/60 block text-[8px] uppercase">Issuing Authority</span>
+                <span className="font-medium">KISSI KINGDOM (KSI)</span>
+              </div>
+              <div>
+                <span className="text-[#8b7340]/60 block text-[8px] uppercase">Full Name / Nom complet</span>
+                <span className="font-bold text-xs">{citizen.fullName.toUpperCase()}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                <div>
+                  <span className="text-[#8b7340]/60 block text-[8px] uppercase">Nationality</span>
+                  <span className="font-medium">KISSI KINGDOM</span>
+                </div>
+                <div>
+                  <span className="text-[#8b7340]/60 block text-[8px] uppercase">Date of Birth</span>
+                  <span className="font-medium">{formatDateICAO(citizen.dateOfBirth)}</span>
+                </div>
+                <div>
+                  <span className="text-[#8b7340]/60 block text-[8px] uppercase">Sex</span>
+                  <span className="font-medium">{citizen.gender[0]}</span>
+                </div>
+                <div>
+                  <span className="text-[#8b7340]/60 block text-[8px] uppercase">Place of Birth</span>
+                  <span className="font-medium">{citizen.placeOfBirth.toUpperCase()}</span>
+                </div>
+                <div>
+                  <span className="text-[#8b7340]/60 block text-[8px] uppercase">Date of Issue</span>
+                  <span className="font-medium">{formatDateICAO(doc.issuedAt.slice(0, 10))}</span>
+                </div>
+                <div>
+                  <span className="text-[#8b7340]/60 block text-[8px] uppercase">Valid Until</span>
+                  <span className="font-medium">{doc.expiresAt ? formatDateICAO(doc.expiresAt.slice(0, 10)) : '—'}</span>
+                </div>
+              </div>
+              <div>
+                <span className="text-[#8b7340]/60 block text-[8px] uppercase">Document No.</span>
+                <span className="font-mono font-bold text-xs text-[#8b7340]">{doc.documentNumber}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Travel authorization */}
+          <div className="mt-4 p-3 border border-[#c9a84c]/20 rounded-lg bg-[#f5f0e0]">
+            <p className="text-[9px] text-[#8b7340] font-medium mb-1 uppercase tracking-wider">Travel Authorization</p>
+            <p className="text-[8px] text-[#666] leading-relaxed">
+              The Government of the Kissi Kingdom requests all whom it may concern to permit the bearer to pass freely without let or hindrance and to afford the bearer such assistance and protection as may be necessary. This document is valid for all modes of international travel including private aviation.
+            </p>
+          </div>
+
+          {/* Signatures */}
+          <div className="mt-3 pt-2 border-t border-[#c9a84c]/20">
+            <div className="flex justify-between items-end">
+              <div>
+                <div className="w-32 border-b border-[#333]/30 mb-1" />
+                <p className="text-[8px] text-[#999]">Bearer&apos;s Signature</p>
+              </div>
+              <div className="text-right">
+                <div className="w-32 border-b border-[#333]/30 mb-1" />
+                <p className="text-[8px] text-[#999]">Issuing Authority</p>
+              </div>
+            </div>
+          </div>
+
+          {/* MRZ Zone */}
+          <div className="mt-auto pt-3 border-t-2 border-[#333]">
+            <div className="bg-white py-2 px-1 font-mono text-[11px] leading-relaxed tracking-wider text-[#333]">
+              <div className="mrz-font">{mrz[0]}</div>
+              <div className="mrz-font">{mrz[1]}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

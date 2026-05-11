@@ -5,7 +5,7 @@ import { getStats } from '@/lib/storage';
 import Link from 'next/link';
 
 export default function Home() {
-  const [stats, setStats] = useState({ totalCitizens: 0, totalDocuments: 0, byType: { born: 0, naturalized: 0, honorary: 0, dual: 0, humanitarian: 0 } });
+  const [stats, setStats] = useState({ totalCitizens: 0, totalDocuments: 0, byType: { born: 0, naturalized: 0, honorary: 0, dual: 0, humanitarian: 0, regent: 0, royal_direct: 0, royal_extended: 0 } });
 
   useEffect(() => {
     setStats(getStats());

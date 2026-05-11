@@ -28,6 +28,7 @@ export default function DocumentsPage() {
     id_card: '🪪',
     passport: '📕',
     dual_citizenship: '🌍',
+    laissez_passer: '✈️',
   };
 
   return (
