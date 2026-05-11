@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #c9a84c;
+  --gold-dark: #a08030;
+  --cream: #f5f0e8;
+  --navy: #0a0e1a;
+  --dark: #0a0a0f;
+}
+
+body {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  background: var(--dark);
+  color: var(--cream);
+}
+
+/* Document print styles */
+@media print {
+  body { background: white; color: black; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+}
+
+/* Gold gradient text */
+.gold-text {
+  background: linear-gradient(135deg, #c9a84c 0%, #e8d48b 50%, #a08030 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gold border */
+.gold-border {
+  border: 2px solid #c9a84c;
+}
+
+/* Document card hover */
+.doc-card {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+}
+.doc-card:hover {
+  border-color: rgba(201, 168, 76, 0.5);
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.1);
+}
+
+/* MRZ font for passport */
+.mrz-font {
+  font-family: 'Courier New', 'OCR B', monospace;
+  letter-spacing: 0.15em;
+}
+
+/* Photo upload area */
+.photo-upload {
+  border: 2px dashed rgba(201, 168, 76, 0.3);
+  transition: all 0.3s;
+}
+.photo-upload:hover {
+  border-color: rgba(201, 168, 76, 0.6);
+  background: rgba(201, 168, 76, 0.05);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0f; }
+::-webkit-scrollbar-thumb { background: #c9a84c40; border-radius: 3px; }
+
+input, select, textarea {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  color: #f5f0e8;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #c9a84c;
+}
+select option { background: #1a1a2e; color: #f5f0e8; }
+label { font-size: 12px; color: rgba(201, 168, 76, 0.8); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px; }
